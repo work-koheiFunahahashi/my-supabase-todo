@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Minimal Supabase Todo</title>
+  <!-- 互換性と安定性の高いSupabase公式CDN (バージョン1系) を使用 -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@1"></script>
+  <style>
+    body { font-family: sans-serif; max-width: 400px; margin: 50px auto; padding: 20px; background: #f9f9f9; }
+    h1 { font-size: 24px; color: #333; }
+    form { display: flex; gap: 8px; margin-bottom: 20px; }
+    input { flex: 1; padding: 10px; border: 1px solid #ccc; border-radius: 4px; font-size: 16px; }
+    button { padding: 10px 16px; background: #24b47e; color: white; border: none; border-radius: 4px; font-size: 16px; cursor: pointer; }
+    button:hover { background: #1cb074; }
+    ul { list-style: none; padding: 0; }
+    li { display: flex; justify-content: space-between; align-items: center; padding: 12px; background: white; margin-bottom: 8px; border-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+    .delete-btn { background: #e53e3e; padding: 6px 12px; font-size: 14px; }
+    .delete-btn:hover { background: #c53030; }
+    .error-msg { color: red; font-size: 14px; margin-bottom: 10px; display: none; }
+  </style>
+</head>
+<body>
+
+  <h1>My Todo App</h1>
+  <div id="error-banner" class="error-msg"></div>
+
+  <form id="todo-form">
+    <input type="text" id="todo-input" placeholder="タスクを入力..." required>
+    <button type="submit">追加</button>
+  </form>
+
+  <ul id="todo-list"></ul>
+
+  <script src="app.js"></script>
+</body>
+</html>
