@@ -1,316 +1,347 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Minimal Supabase Todo</title>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@1"></script>
-  <style>
-    /* --- 全体のリセットと背景設定 --- */
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
-    
-    body {
-      font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', sans-serif;
-      background: linear-gradient(135deg, #f4f7fc 0%, #eef2f9 100%);
-      min-height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: flex-start;
-      padding: 20px;
-      position: relative;
-      overflow-x: hidden;
-    }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Minimal Supabase Todo</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@1"></script>
+  <style>
+    /* --- 全体のリセットと背景設定 --- */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    
+    body {
+      font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', sans-serif;
+      background: linear-gradient(135deg, #f4f7fc 0%, #eef2f9 100%);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 20px;
+      position: relative;
+      overflow-x: hidden;
+    }
 
-    /* --- シャボン玉（バブル）アニメーション（数と色を更新） --- */
-    .bubbles {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      z-index: 0;
-      pointer-events: none; /* アプリの操作を邪魔しない */
-    }
+    /* --- シャボン玉（バブル）アニメーション（数と色を更新） --- */
+    .bubbles {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+      pointer-events: none; /* アプリの操作を邪魔しない */
+    }
 
-    .bubble {
-      position: absolute;
-      bottom: -120px;
-      border-radius: 50%;
-      box-shadow: inset 0 0 15px rgba(255, 255, 255, 0.7), 0 5px 15px rgba(14, 165, 233, 0.1);
-      animation: floatUp 12s infinite linear;
-    }
+    .bubble {
+      position: absolute;
+      bottom: -120px;
+      border-radius: 50%;
+      box-shadow: inset 0 0 15px rgba(255, 255, 255, 0.7), 0 5px 15px rgba(14, 165, 233, 0.1);
+      animation: floatUp 12s infinite linear;
+    }
 
-    @keyframes floatUp {
-      0% {
-        transform: translateY(0) translateX(0) scale(1);
-        opacity: 0;
+    @keyframes floatUp {
+      0% {
+        transform: translateY(0) translateX(0) scale(1);
+        opacity: 0;
+      }
+      10% {
+        opacity: 0.9;
+      }
+      90% {
+        opacity: 0.6;
+      }
+      100% {
+        transform: translateY(-130vh) translateX(60px) scale(1.3);
+        opacity: 0;
+      }
+    }
+
+    /* バブルの色の定義（青と緑） */
+    .bubble-blue {
+      background: rgba(14, 165, 233, 0.7); /* 青：より濃く */
+      border: 3px solid rgba(14, 165, 233, 0.9);
+    }
+
+    .bubble-green {
+      background: rgba(36, 180, 126, 0.7); /* 緑：より濃く */
+      border: 3px solid rgba(36, 180, 126, 0.9);
+    }
+
+    /* バブルの定義（青系と緑系を交互に、数を増加） */
+    .bubble:nth-child(1)  { left: 5%; width: 60px; height: 60px; animation-duration: 14s; animation-delay: 0s;  } .bubble:nth-child(1)  { @extend .bubble-blue; }
+    .bubble:nth-child(2)  { left: 15%; width: 100px; height: 100px; animation-duration: 19s; animation-delay: 2s; } .bubble:nth-child(2)  { @extend .bubble-green; }
+    .bubble:nth-child(3)  { left: 28%; width: 50px; height: 50px; animation-duration: 13s; animation-delay: 4s;  } .bubble:nth-child(3)  { @extend .bubble-blue; }
+    .bubble:nth-child(4)  { left: 35%; width: 110px; height: 110px; animation-duration: 23s; animation-delay: 1s; } .bubble:nth-child(4)  { @extend .bubble-green; }
+    .bubble:nth-child(5)  { left: 50%; width: 70px; height: 70px; animation-duration: 17s; animation-delay: 5s;  } .bubble:nth-child(5)  { @extend .bubble-blue; }
+    .bubble:nth-child(6)  { left: 60%; width: 55px; height: 55px; animation-duration: 14s; animation-delay: 3s;  } .bubble:nth-child(6)  { @extend .bubble-green; }
+    .bubble:nth-child(7)  { left: 70%; width: 100px; height: 100px; animation-duration: 20s; animation-delay: 6s; } .bubble:nth-child(7)  { @extend .bubble-blue; }
+    .bubble:nth-child(8)  { left: 80%; width: 85px; height: 85px; animation-duration: 18s; animation-delay: 1s;  } .bubble:nth-child(8)  { @extend .bubble-green; }
+    .bubble:nth-child(9)  { left: 90%; width: 65px; height: 65px; animation-duration: 15s; animation-delay: 7s;  } .bubble:nth-child(9)  { @extend .bubble-blue; }
+    .bubble:nth-child(10) { left: 95%; width: 95px; height: 95px; animation-duration: 21s; animation-delay: 2s;  } .bubble:nth-child(10) { @extend .bubble-green; }
+
+    /* --- メインコンテナ（PC幅を広く更新） --- */
+    .app-container {
+      background: rgba(255, 255, 255, 0.85);
+      -webkit-backdrop-filter: blur(10px);
+      backdrop-filter: blur(10px); /* すりガラス効果 */
+      width: 100%;
+      max-width: 900px; /* パソコン表示で行を広く表示するために拡大 */
+      margin: 40px auto;
+      padding: 30px;
+      border-radius: 16px;
+      box-shadow: 0 15px 40px rgba(14, 165, 233, 0.12), 0 2px 4px rgba(0, 0, 0, 0.02);
+      border: 1px solid rgba(255, 255, 255, 0.8);
+      z-index: 1; /* シャボン玉より前に出す */
+    }
+
+    h1 {
+      font-size: 28px;
+      font-weight: 700;
+      color: #1e3a8a; /* 濃い青（インディゴネイビー） */
+      margin-bottom: 28px;
+      text-align: center;
+      letter-spacing: -0.5px;
+    }
+
+    /* --- エラーバナー --- */
+    .error-msg {
+      background-color: #fef2f2;
+      color: #ef4444;
+      padding: 12px 16px;
+      border-radius: 8px;
+      font-size: 14px;
+      margin-bottom: 16px;
+      border: 1px solid #fee2e2;
+      display: none;
+    }
+
+    /* --- フォームエリア（PC・スマホの切り替え） --- */
+    form {
+      display: flex;
+      flex-direction: row; /* 基本は横並び */
+      gap: 12px;
+      margin-bottom: 28px;
+    }
+
+    input {
+      flex: 1;
+      padding: 14px 20px;
+      border: 1.5px solid #e2e8f0;
+      border-radius: 12px;
+      font-size: 17px;
+      color: #334155;
+      background: #ffffff;
+      transition: all 0.2s ease;
+    }
+
+    input:focus {
+      outline: none;
+      border-color: #3b82f6; /* フォーカス時に青に */
+      box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.2);
+    }
+
+    button {
+      padding: 14px 28px;
+      background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); /* 濃淡の青グラデーション */
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-size: 17px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      box-shadow: 0 5px 15px rgba(29, 78, 216, 0.25);
+      white-space: nowrap;
+    }
+
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(29, 78, 216, 0.35);
+    }
+
+    button:active {
+      transform: translateY(1px);
+    }
+
+    /* --- リストエリア --- */
+    ul {
+      list-style: none;
+    }
+
+    li {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 18px 24px;
+      background: #ffffff;
+      margin-bottom: 12px;
+      border-radius: 14px;
+      border: 1px solid #f1f5f9;
+      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.01), 0 2px 4px rgba(0, 0, 0, 0.01);
+      transition: all 0.2s ease;
+    }
+
+    li:hover {
+      transform: translateX(3px);
+      border-color: #e2e8f0;
+      box-shadow: 0 12px 20px rgba(14, 165, 233, 0.08);
+    }
+
+    /* タスクのテキストと展開ボタンのコンテナ */
+    .task-content {
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+        padding-right: 16px;
+    }
+
+    /* タスクのテキストエリア（折りたたみ制御） */
+    .task-text {
+      color: #475569;
+      font-size: 16px;
+      line-height: 1.6;
+      word-break: break-all; /* 長い英単語の改行対策 */
+      display: block;
+      overflow: hidden;
+      transition: max-height 0.3s ease;
+    }
+
+    /* 初期状態：3行で省略（JavaScriptで長さを判定） */
+    .text-collapsed {
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+    }
+
+    /* 展開状態 */
+    .text-expanded {
+        display: block;
+        max-height: none;
+        overflow: visible;
+    }
+
+    /* 展開/折りたたみボタン */
+    .toggle-btn {
+        display: none; /* 初期は非表示 */
+        align-items: center;
+        margin-top: 6px;
+        background: none;
+        border: none;
+        color: #3b82f6;
+        cursor: pointer;
+        padding: 2px 4px;
+        font-size: 13px;
+        font-weight: 600;
+        border-radius: 4px;
+        align-self: flex-start; /* 左寄せ */
+    }
+
+    .toggle-btn:hover {
+        background-color: #eff6ff;
+        color: #1d4ed8;
+    }
+
+    .toggle-btn .icon {
+        margin-left: 3px;
+        font-size: 11px;
+    }
+
+    /* 削除ボタン */
+    .delete-btn {
+      background: #f1f5f9;
+      color: #64748b;
+      padding: 7px 16px;
+      font-size: 14px;
+      font-weight: 500;
+      border-radius: 8px;
+      box-shadow: none;
+    }
+
+    .delete-btn:hover {
+      background: #fee2e2;
+      color: #ef4444;
+      box-shadow: none;
+      transform: none;
+    }
+
+    /* --- 📱 スマホ画面（横幅480px以下）での調整 --- */
+    @media (max-width: 480px) {
+      body {
+        padding: 10px;
+      }
+      .app-container {
+        margin-top: 10px;
+        padding: 24px 20px;
+        border-radius: 12px;
+      }
+      form {
+        flex-direction: column; /* スマホでは縦並びに切り替え */
+      }
+      input {
+        font-size: 16px;
+        padding: 12px 18px;
+      }
+      button {
+        width: 100%; /* ボタンを横いっぱいに広げて押しやすく */
+        padding: 14px; /* タップしやすいように少し厚みを出す */
+        font-size: 16px;
+      }
+      h1 {
+        font-size: 22px;
+        margin-bottom: 22px;
+      }
+      li {
+        padding: 16px;
+      }
+      .delete-btn {
+        width: 60px; /* スマホで削除ボタンの幅を統一 */
+        text-align: center;
+        padding: 6px 0;
       }
-      10% {
-        opacity: 0.9;
-      }
-      90% {
-        opacity: 0.6;
-      }
-      100% {
-        transform: translateY(-130vh) translateX(60px) scale(1.3);
-        opacity: 0;
-      }
-    }
+    }
+  </style>
+</head>
+<body>
 
-    /* バブルの色の定義（青と緑） */
-    .bubble-blue {
-      background: rgba(14, 165, 233, 0.7); /* 青：より濃く */
-      border: 3px solid rgba(14, 165, 233, 0.9);
-    }
+  <div class="bubbles">
+    <div class="bubble bubble-blue"></div>
+    <div class="bubble bubble-green"></div>
+    <div class="bubble bubble-blue"></div>
+    <div class="bubble bubble-green"></div>
+    <div class="bubble bubble-blue"></div>
+    <div class="bubble bubble-green"></div>
+    <div class="bubble bubble-blue"></div>
+    <div class="bubble bubble-green"></div>
+    <div class="bubble bubble-blue"></div>
+    <div class="bubble bubble-green"></div>
+  </div>
 
-    .bubble-green {
-      background: rgba(36, 180, 126, 0.7); /* 緑：より濃く */
-      border: 3px solid rgba(36, 180, 126, 0.9);
-    }
+  <div class="app-container">
+    <h1>My Todo App</h1>
+    <div id="error-banner" class="error-msg"></div>
 
-    /* バブルの定義（青系と緑系を交互に、数を増加） */
-    .bubble:nth-child(1)  { left: 5%; width: 60px; height: 60px; animation-duration: 14s; animation-delay: 0s;  } .bubble:nth-child(1)  { @extend .bubble-blue; }
-    .bubble:nth-child(2)  { left: 15%; width: 100px; height: 100px; animation-duration: 19s; animation-delay: 2s; } .bubble:nth-child(2)  { @extend .bubble-green; }
-    .bubble:nth-child(3)  { left: 28%; width: 50px; height: 50px; animation-duration: 13s; animation-delay: 4s;  } .bubble:nth-child(3)  { @extend .bubble-blue; }
-    .bubble:nth-child(4)  { left: 35%; width: 110px; height: 110px; animation-duration: 23s; animation-delay: 1s; } .bubble:nth-child(4)  { @extend .bubble-green; }
-    .bubble:nth-child(5)  { left: 50%; width: 70px; height: 70px; animation-duration: 17s; animation-delay: 5s;  } .bubble:nth-child(5)  { @extend .bubble-blue; }
-    .bubble:nth-child(6)  { left: 60%; width: 55px; height: 55px; animation-duration: 14s; animation-delay: 3s;  } .bubble:nth-child(6)  { @extend .bubble-green; }
-    .bubble:nth-child(7)  { left: 70%; width: 100px; height: 100px; animation-duration: 20s; animation-delay: 6s; } .bubble:nth-child(7)  { @extend .bubble-blue; }
-    .bubble:nth-child(8)  { left: 80%; width: 85px; height: 85px; animation-duration: 18s; animation-delay: 1s;  } .bubble:nth-child(8)  { @extend .bubble-green; }
-    .bubble:nth-child(9)  { left: 90%; width: 65px; height: 65px; animation-duration: 15s; animation-delay: 7s;  } .bubble:nth-child(9)  { @extend .bubble-blue; }
-    .bubble:nth-child(10) { left: 95%; width: 95px; height: 95px; animation-duration: 21s; animation-delay: 2s;  } .bubble:nth-child(10) { @extend .bubble-green; }
+    <form id="todo-form">
+      <input type="text" id="todo-input" placeholder="タスクを入力..." required>
+      <button type="submit">追加</button>
+    </form>
 
-    /* --- メインコンテナ（PC幅を広く更新） --- */
-    .app-container {
-      background: rgba(255, 255, 255, 0.85);
-      -webkit-backdrop-filter: blur(10px);
-      backdrop-filter: blur(10px); /* すりガラス効果 */
-      width: 100%;
-      max-width: 900px; /* パソコン表示で行を広く表示するために拡大 */
-      margin: 40px auto;
-      padding: 30px;
-      border-radius: 16px;
-      box-shadow: 0 15px 40px rgba(14, 165, 233, 0.12), 0 2px 4px rgba(0, 0, 0, 0.02);
-      border: 1px solid rgba(255, 255, 255, 0.8);
-      z-index: 1; /* シャボン玉より前に出す */
-    }
+    <ul id="todo-list"></ul>
+  </div>
 
-    h1 {
-      font-size: 28px;
-      font-weight: 700;
-      color: #1e3a8a; /* 濃い青（インディゴネイビー） */
-      margin-bottom: 28px;
-      text-align: center;
-      letter-spacing: -0.5px;
-    }
-
-    /* --- エラーバナー --- */
-    .error-msg {
-      background-color: #fef2f2;
-      color: #ef4444;
-      padding: 12px 16px;
-      border-radius: 8px;
-      font-size: 14px;
-      margin-bottom: 16px;
-      border: 1px solid #fee2e2;
-      display: none;
-    }
-
-    /* --- フォームエリア（PC・スマホの切り替え） --- */
-    form {
-      display: flex;
-      flex-direction: row; /* 基本は横並び */
-      gap: 12px;
-      margin-bottom: 28px;
-    }
-
-    input {
-      flex: 1;
-      padding: 14px 20px;
-      border: 1.5px solid #e2e8f0;
-      border-radius: 12px;
-      font-size: 17px;
-      color: #334155;
-      background: #ffffff;
-      transition: all 0.2s ease;
-    }
-
-    input:focus {
-      outline: none;
-      border-color: #3b82f6; /* フォーカス時に青に */
-      box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.2);
-    }
-
-    button {
-      padding: 14px 28px;
-      background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); /* 濃淡の青グラデーション */
-      color: white;
-      border: none;
-      border-radius: 12px;
-      font-size: 17px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.2s ease;
-      box-shadow: 0 5px 15px rgba(29, 78, 216, 0.25);
-      white-space: nowrap;
-    }
-
-    button:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 20px rgba(29, 78, 216, 0.35);
-    }
-
-    button:active {
-      transform: translateY(1px);
-    }
-
-    /* --- リストエリア --- */
-    ul {
-      list-style: none;
-    }
-
-    li {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 18px 24px;
-      background: #ffffff;
-      margin-bottom: 12px;
-      border-radius: 14px;
-      border: 1px solid #f1f5f9;
-      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.01), 0 2px 4px rgba(0, 0, 0, 0.01);
-      transition: all 0.2s ease;
-    }
-
-    li:hover {
-      transform: translateX(3px);
-      border-color: #e2e8f0;
-      box-shadow: 0 12px 20px rgba(14, 165, 233, 0.08);
-    }
-
-    /* タスクのテキストと展開ボタンのコンテナ */
-    .task-content {
-        display: flex;
-        flex-direction: column;
-        flex: 1;
-        padding-right: 16px;
-    }
-
-    /* タスクのテキストエリア（折りたたみ制御） */
-    .task-text {
-      color: #475569;
-      font-size: 16px;
-      line-height: 1.6;
-      word-break: break-all; /* 長い英単語の改行対策 */
-      display: block;
-      overflow: hidden;
-      transition: max-height 0.3s ease;
-    }
-
-    /* 初期状態：3行で省略（JavaScriptで長さを判定） */
-    .text-collapsed {
-        display: -webkit-box;
-        -webkit-line-clamp: 3;
-        -webkit-box-orient: vertical;
-    }
-
-    /* 展開状態 */
-    .text-expanded {
-        display: block;
-        max-height: none;
-        overflow: visible;
-    }
-
-    /* 展開/折りたたみボタン */
-    .toggle-btn {
-        display: none; /* 初期は非表示 */
-        align-items: center;
-        margin-top: 6px;
-        background: none;
-        border: none;
-        color: #3b82f6;
-        cursor: pointer;
-        padding: 2px 4px;
-        font-size: 13px;
-        font-weight: 600;
-        border-radius: 4px;
-        align-self: flex-start; /* 左寄せ */
-    }
-
-    .toggle-btn:hover {
-        background-color: #eff6ff;
-        color: #1d4ed8;
-    }
-
-    .toggle-btn .icon {
-        margin-left: 3px;
-        font-size: 11px;
-    }
-
-    /* 削除ボタン */
-    .delete-btn {
-      background: #f1f5f9;
-      color: #64748b;
-      padding: 7px 16px;
-      font-size: 14px;
-      font-weight: 500;
-      border-radius: 8px;
-      box-shadow: none;
-    }
-
-    .delete-btn:hover {
-      background: #fee2e2;
-      color: #ef4444;
-      box-shadow: none;
-      transform: none;
-    }
-
-    /* --- 📱 スマホ画面（横幅480px以下）での調整 --- */
-    @media (max-width: 480px) {
-      body {
-        padding: 10px;
-      }
-      .app-container {
-        margin-top: 10px;
-        padding: 24px 20px;
-        border-radius: 12px;
-      }
-      form {
-        flex-direction: column; /* スマホでは縦並びに切り替え */
-      }
-      input {
-        font-size: 16px;
-        padding: 12px 18px;
-      }
-      button {
-        width: 100%; /* ボタンを横いっぱいに広げて押しやすく */
-        padding: 14px; /* タップしやすいように少し厚みを出す */
-        font-size: 16px;
-      }
-      h1 {
-        font-size: 22px;
-        margin-bottom: 22px;
-      }
-      li {
-        padding: 16px;
-      }
-    }
-  </style>
-
+  <script src="app.js"></script>
   <script>
     document.addEventListener('DOMContentLoaded', () => {
-        // MutationObserverを使って、新しい<li>が追加されるたびに処理を行う
         const todoList = document.getElementById('todo-list');
 
         const observer = new MutationObserver((mutations) => {
             mutations.forEach((mutation) => {
                 if (mutation.type === 'childList') {
                     mutation.addedNodes.forEach((node) => {
-                        // <li>要素で、かつまだ処理されていないもの
                         if (node.nodeType === 1 && node.tagName === 'LI' && !node.dataset.foldingProcessed) {
                             processNewListItem(node);
                         }
@@ -319,42 +350,14 @@
             });
         });
 
-        // #todo-listの中身の変化を監視
         observer.observe(todoList, { childList: true });
 
         function processNewListItem(li) {
-            // app.jsが生成した<li>内の構成要素を再構築する
             const spanText = li.querySelector('span');
-            if (!spanText) return; // 既存構造がない場合は何もしない
+            if (!spanText) return;
 
-            // 既存のHTMLを新しい構造に書き換える
             const textContent = spanText.textContent;
-            li.innerHTML = `
-                <div class="task-content">
-                    <span class="task-text">${textContent}</span>
-                    <button class="toggle-btn" aria-expanded="false" style="display:none">
-                        展開<span class="icon">▼</span>
-                    </button>
-                </div>
-                ${li.querySelector('.delete-btn').outerHTML}
-            `;
-
-            // イベントを再登録（.delete-btnへのクリックイベントが外れてしまうため）
-            // ※重要：app.js側の削除処理がliを特定できるようにする必要がある
-            // ここでの修正は既存の削除処理と干渉する可能性があるため、注意深く実装します。
-            // 最も安全なのはapp.js側でリスト追加時に新しい構造を生成することですが、
-            // 今回は既存のapp.jsを尊重し、削除ボタンを再生成した上で、そのクリックを
-            // 親要素(li)が持つ元の削除ロジックを呼び出すように擬似的に処理します。
             
-            const newDeleteBtn = li.querySelector('.delete-btn');
-            // 元のapp.js側の削除イベントを保持・呼び出すのは複雑なので、
-            // ここではliの中身を書き換えるだけに留め、削除機能はapp.jsに任せるのが安全です。
-            // しかし、innerHTMLを書き換えるとeventsが失われます。
-            // よって、既存のapp.jsが削除ロジックを<li>自体に付与しているか、
-            // 親要素（ul）でデリゲートしていることを祈りつつ、innerHTML書き換えを行う構造にします。
-            // 如果app.js的删除逻辑依赖于特定的DOM结构或索引，这种动态重组可能会破坏它。
-
-            // 【より安全なアプローチ】：innerHTMLを書き換えず、要素を追加・ラップする
             const taskContent = document.createElement('div');
             taskContent.className = 'task-content';
             
@@ -366,43 +369,34 @@
             toggleBtn.className = 'toggle-btn';
             toggleBtn.setAttribute('aria-expanded', 'false');
             toggleBtn.innerHTML = '展開<span class="icon">▼</span>';
-            toggleBtn.style.display = 'none'; // 初期は非表示
+            toggleBtn.style.display = 'none';
 
             taskContent.appendChild(taskText);
             taskContent.appendChild(toggleBtn);
             
-            // 既存の<span>と<button>（削除）を再配置
-            li.insertBefore(taskContent, li.firstChild); // 先頭に追加
-            li.removeChild(spanText); // 古いspanを削除
+            li.insertBefore(taskContent, li.firstChild);
+            li.removeChild(spanText);
 
-            // 処理済みフラグを立てる
             li.dataset.foldingProcessed = 'true';
 
-            // ----------------------------------------------------
-            // 3行以上あるか判定し、折りたたみを適用
-            // ----------------------------------------------------
             const lineHeight = parseFloat(window.getComputedStyle(taskText).lineHeight);
             const maxHeight = lineHeight * 3;
 
             if (taskText.scrollHeight > maxHeight) {
-                // 長いタスク：初期状態を「折りたたみ」にする
                 taskText.classList.add('text-collapsed');
-                toggleBtn.style.display = 'inline-flex'; // ボタンを表示
+                toggleBtn.style.display = 'inline-flex';
                 toggleBtn.addEventListener('click', toggleCollapse);
             } else {
-                // 短いタスク：そのまま
                 taskText.classList.add('text-expanded');
             }
 
             function toggleCollapse() {
                 if (taskText.classList.contains('text-collapsed')) {
-                    // 展開する
                     taskText.classList.remove('text-collapsed');
                     taskText.classList.add('text-expanded');
                     toggleBtn.setAttribute('aria-expanded', 'true');
-                    toggleBtn.innerHTML = '收起<span class="icon">▲</span>';
+                    toggleBtn.innerHTML = '収起<span class="icon">▲</span>';
                 } else {
-                    // 折りたたむ
                     taskText.classList.remove('text-expanded');
                     taskText.classList.add('text-collapsed');
                     toggleBtn.setAttribute('aria-expanded', 'false');
@@ -412,34 +406,5 @@
         }
     });
   </script>
-</head>
-<body>
-
-  <div class="bubbles">
-    <div class="bubble"></div>
-    <div class="bubble"></div>
-    <div class="bubble"></div>
-    <div class="bubble"></div>
-    <div class="bubble"></div>
-    <div class="bubble"></div>
-    <div class="bubble"></div>
-    <div class="bubble"></div>
-    <div class="bubble"></div>
-    <div class="bubble"></div>
-  </div>
-
-  <div class="app-container">
-    <h1>My Todo App</h1>
-    <div id="error-banner" class="error-msg"></div>
-
-    <form id="todo-form">
-      <input type="text" id="todo-input" placeholder="タスクを入力..." required>
-      <button type="submit">追加</button>
-    </form>
-
-    <ul id="todo-list"></ul>
-  </div>
-
-  <script src="app.js"></script>
 </body>
 </html>
